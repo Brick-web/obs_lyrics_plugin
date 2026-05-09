@@ -1,0 +1,92 @@
+/* 模式6：星空流星 */
+.mode-starry {
+    opacity: 1;
+    position: relative;
+    color: var(--starry-text-color, #E0F7FA);
+    text-shadow:
+        0 0 5px rgba(255, 255, 255, 0.8),
+        0 0 10px rgba(0, 191, 255, 0.5),
+        0 0 20px rgba(0, 191, 255, 0.3);
+    animation: floatText 3s ease-in-out infinite;
+}
+
+@keyframes floatText {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+/* 星星粒子 */
+.mode-starry .star {
+    position: absolute;
+    color: var(--starry-star-color, #FFF176);
+    /* 移除背景，改用 SVG 填充 */
+    background: none;
+    box-shadow: none;
+    /* 增加发光滤镜 */
+    filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 5px var(--starry-star-color, #FFF176));
+    opacity: 0;
+    z-index: 1;
+    pointer-events: none;
+    animation: twinkle 2s infinite ease-in-out;
+}
+
+@keyframes twinkle {
+
+    0%,
+    100% {
+        opacity: 0.3;
+        transform: scale(0.5) rotate(0deg);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.2) rotate(180deg);
+    }
+}
+
+/* 流星 */
+.mode-starry .meteor {
+    position: absolute;
+    left: -150px;
+    /* 起始位置更靠左 */
+    width: 150px;
+    /* 更长 */
+    height: 10px;
+    /* 适应 SVG 高度 */
+    background: none;
+    /* 移除背景 */
+    z-index: 0;
+    opacity: 0;
+    color: #fff;
+    /* 流星颜色 */
+    pointer-events: none;
+    animation: shoot 4s infinite linear;
+}
+
+@keyframes shoot {
+    0% {
+        left: -20%;
+        opacity: 0;
+    }
+
+    5% {
+        opacity: 1;
+    }
+
+    30% {
+        left: 120%;
+        opacity: 0;
+    }
+
+    100% {
+        left: 120%;
+        opacity: 0;
+    }
+}

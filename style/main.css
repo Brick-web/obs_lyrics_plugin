@@ -1,0 +1,141 @@
+/* @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@700;900&display=swap'); */
+
+@font-face {
+    font-family: 'DouYinHao';
+    src: url('../font/dyh.ttf') format('truetype');
+}
+
+:root {
+    /* 全局变量默认值，将被 JS 覆盖 */
+    --global-text-color: white;
+    --global-text-shadow: black;
+    --lyric-font-size: 64px;
+    --ktv-scan-color: #ff0055;
+    --ktv-base-color: white;
+    --svg-text-color: white;
+    --svg-glow-color: rgba(255, 215, 0, 0.3);
+    --comic-text-color: #FFD700;
+    --comic-shadow-color: #000000;
+    --starry-text-color: #E0F7FA;
+    --starry-star-color: #FFF176;
+    --particles-primary-color: #FFE082;
+    --particles-glow-color: #FFAB40;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: rgba(0, 0, 0, 0);
+    /* OBS中透明 */
+    overflow: hidden;
+    font-family: 'DouYinHao', sans-serif;
+    /* 使用自定义字体 */
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    /* 底部对齐 */
+    align-items: flex-start;
+    /* 改为左对齐 */
+}
+
+#lyrics-container {
+    margin-bottom: 100px;
+    /* 恢复底部距离 */
+    text-align: left;
+    /* 改为左对齐 */
+    width: 90%;
+    padding-left: 80px;
+    /* 增加左侧留白 */
+}
+
+.lyric-line {
+    font-size: var(--lyric-font-size, 64px);
+    /* 恢复大字号 */
+    font-weight: normal;
+    /* 自定义字体通常不需要加粗，防止变形 */
+    color: var(--global-text-color);
+    /* 移除旧的描边方式 */
+    /* -webkit-text-stroke: 2px black; */
+
+    /* 优化描边：减小阴影偏移量，使其更精致 */
+    text-shadow:
+        2px 0 0 var(--global-text-shadow),
+        -2px 0 0 var(--global-text-shadow),
+        0 2px 0 var(--global-text-shadow),
+        0 -2px 0 var(--global-text-shadow),
+        1.5px 1.5px 0 var(--global-text-shadow),
+        -1.5px 1.5px 0 var(--global-text-shadow),
+        1.5px -1.5px 0 var(--global-text-shadow),
+        -1.5px -1.5px 0 var(--global-text-shadow),
+        0px 4px 10px rgba(0, 0, 0, 0.8);
+    /* 恢复较重的阴影 */
+
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    position: relative;
+    display: inline-block;
+    white-space: nowrap;
+    /* 优化渲染层级，防止文字边缘锯齿 */
+    will-change: transform, opacity;
+}
+
+/* 状态指示：底部边缘渐变 */
+#status-gradient {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 150px;
+    /* 底部区域 */
+    pointer-events: none;
+    z-index: -1;
+    transition: opacity 0.5s ease;
+    opacity: 0;
+}
+
+.gradient-ready {
+    opacity: 1 !important;
+    background: linear-gradient(to top, rgba(0, 255, 0, 0.15) 0%, transparent 100%);
+    /* 降低亮度：0.4 -> 0.15 */
+}
+
+.gradient-error {
+    opacity: 1 !important;
+    background: linear-gradient(to top, rgba(255, 0, 0, 0.3) 0%, transparent 100%);
+    /* 降低亮度：0.6 -> 0.3 */
+}
+
+/* 状态指示器 (仅调试用，OBS中可隐藏) */
+#status-bar {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 12px;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 5px;
+    border-radius: 4px;
+    display: none;
+    /* 默认隐藏 */
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#mode-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: 5px;
+    max-width: 150px;
+    margin: 0 auto;
+}
