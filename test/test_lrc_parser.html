@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>LRC 解析器测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .test-result {
+            margin: 20px 0;
+            padding: 15px;
+            border-left: 4px solid #4CAF50;
+            background: #f1f8f4;
+            border-radius: 4px;
+        }
+
+        .test-result.fail {
+            border-left-color: #f44336;
+            background: #fdeaea;
+        }
+
+        .test-result.pass {
+            border-left-color: #4CAF50;
+            background: #f1f8f4;
+        }
+
+        pre {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+
+        .summary {
+            margin-top: 30px;
+            padding: 15px;
+            background: #e3f2fd;
+            border-radius: 4px;
+            border-left: 4px solid #2196F3;
+        }
+
+        .summary h2 {
+            margin-top: 0;
+            color: #1976D2;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🧪 LRC 解析器测试</h1>
+        <div id="test-results"></div>
+        <div id="summary" class="summary">
+            <h2>测试总结</h2>
+            <p id="summary-text">运行中...</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { parseLrc, parseLrcFile, isLrcFile } from './js/lrcParser.js';
+
+        const testLrcContent = `[ti:海阔天空]
+[ar:BEYOND]
+[00:00.000] 作词 : 黄家驹
+[00:01.000] 作曲 : 黄家驹
+[00:02.000] 编曲 : Beyond / 梁邦彦
+[00:03.000]
+[00:18.246] 今天我 寒夜里看雪飘过
+[00:24.831] 怀着冷却了的心窝漂远方
+[00:30.676] 风雨里追赶 雾里分不清影踪
+[00:36.951] 天空海阔你与我
+[00:40.003] 可会变（谁没在变）
+[00:43.152] 多少次 迎着冷眼与嘲笑
+[00:49.791] 从没有放弃过心中的理想
+[00:55.688] 一刹那恍惚 若有所失的感觉
+[01:01.838] 不知不觉已变淡
+[01:04.999] 心里爱（谁明白我）`;
+
+        let testsPassed = 0;
+        let testsFailed = 0;
+
+        function logTest(name, passed, details = '') {
+            const resultsDiv = document.getElementById('test-results');
+            const resultEl = document.createElement('div');
+            resultEl.className = `test-result ${passed ? 'pass' : 'fail'}`;
+
+            const status = passed ? '✅ 通过' : '❌ 失败';
+            resultEl.innerHTML = `
+                <strong>${status}: ${name}</strong>
+                ${details ? `<pre>${details}</pre>` : ''}
+            `;
+            resultsDiv.appendChild(resultEl);
+
+            if (passed) testsPassed++;
+            else testsFailed++;
+        }
+
+        async function runTests() {
+            try {
+                // 测试 1: 文件类型检测
+                console.log('测试 1: 文件类型检测');
+                let test1Pass = true;
+                test1Pass = isLrcFile('song.lrc') === true;
+                test1Pass = test1Pass && (isLrcFile('song.json') === false);
+                test1Pass = test1Pass && (isLrcFile('song.LRC') === true);
+                logTest('文件类型检测', test1Pass,
+                    `isLrcFile('song.lrc'): ${isLrcFile('song.lrc')}\n` +
+                    `isLrcFile('song.json'): ${isLrcFile('song.json')}\n` +
+                    `isLrcFile('song.LRC'): ${isLrcFile('song.LRC')}`);
+
+                // 测试 2: 解析 LRC 内容
+                console.log('测试 2: LRC 内容解析');
+                const result = parseLrc(testLrcContent);
+
+                let test2Pass = true;
+                test2Pass = result.title === '海阔天空';
+                test2Pass = test2Pass && (result.lyrics.length === 13);
+
+                const details2 = `
+标题: "${result.title}" (期望: "海阔天空")
+歌词行数: ${result.lyrics.length} (期望: 13)
+艺术家: "${result.artist || '(未指定)'}"
+
+前3句歌词:
+${result.lyrics.slice(0, 3).map((l, i) => `  [${i}] "${l.text}" (${l.duration}ms)`).join('\n')}`;
+
+                logTest('LRC 内容解析', test2Pass, details2);
+
+                // 测试 3: 时长计算
+                console.log('测试 3: 时长计算');
+                let test3Pass = true;
+                result.lyrics.forEach(lyric => {
+                    test3Pass = test3Pass && (lyric.duration > 0);
+                });
+
+                const firstLyric = result.lyrics[0];
+                const secondLyric = result.lyrics[1];
+                const details3 = `
+第1句时长: ${firstLyric.duration}ms (应 > 0)
+第2句时长: ${secondLyric.duration}ms (应 > 0)
+最后一句时长: ${result.lyrics[result.lyrics.length - 1].duration}ms`;
+
+                logTest('时长计算', test3Pass, details3);
+
+                // 测试 4: 字符串解析
+                console.log('测试 4: 字符串解析');
+                const result2 = await parseLrcFile(testLrcContent);
+                const test4Pass = result2.title === '海阔天空' && result2.lyrics.length > 0;
+                logTest('字符串内容解析', test4Pass,
+                    `通过 parseLrcFile 解析得到标题: "${result2.title}"\n歌词数: ${result2.lyrics.length}`);
+
+                // 测试 5: 空行处理
+                console.log('测试 5: 空行处理');
+                const lrcWithEmpty = `[ti:测试]
+[00:00.000] 第一行
+[00:03.000]
+[00:06.000] 第二行`;
+                const result3 = parseLrc(lrcWithEmpty);
+                const test5Pass = result3.lyrics.length === 2;
+                logTest('空行处理', test5Pass,
+                    `包含空行的 LRC 解析结果: ${result3.lyrics.length} 句歌词 (期望: 2)\n` +
+                    `歌词: ${result3.lyrics.map(l => `"${l.text}"`).join(', ')}`);
+
+                // 显示总结
+                const summaryEl = document.getElementById('summary-text');
+                const total = testsPassed + testsFailed;
+                const passPercent = Math.round((testsPassed / total) * 100);
+
+                summaryEl.innerHTML = `
+                    <strong>总计: ${total} 个测试</strong><br>
+                    通过: ${testsPassed} ✅ | 失败: ${testsFailed} ❌<br>
+                    通过率: ${passPercent}%<br><br>
+                    ${testsFailed === 0 ? '<span style="color: #4CAF50; font-size: 18px;">🎉 所有测试通过！</span>' : '<span style="color: #f44336;">⚠️ 有测试失败</span>'}
+                `;
+
+            } catch (err) {
+                console.error('测试异常:', err);
+                document.getElementById('summary-text').innerHTML = `<span style="color: #f44336;">❌ 测试异常: ${err.message}</span>`;
+            }
+        }
+
+        // 运行测试
+        runTests();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,40 @@
+/* 模式1：KTV 扫光动画 - 伪元素重构版 */
+.mode-ktv {
+    opacity: 1;
+    /* 主元素只负责显示白字黑边（底层） */
+    color: var(--ktv-base-color);
+}
+
+/* 使用伪元素叠加渐变层，解决 text-shadow 与 background-clip 的冲突 */
+.mode-ktv::after {
+    content: attr(data-text);
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 1;
+
+    /* 渐变逻辑 */
+    background: linear-gradient(to right, var(--ktv-scan-color) 50%, var(--ktv-base-color) 50%);
+    background-size: 200% 100%;
+    background-position: 100% 0;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+    /* 继承主元素的动画时长 */
+    animation: ktvScan linear forwards;
+    animation-duration: inherit;
+
+    /* 关键：伪元素不要阴影和描边，否则会盖住渐变扫光 */
+    text-shadow: none;
+    -webkit-text-stroke: 0;
+}
+
+@keyframes ktvScan {
+    from {
+        background-position: 100% 0;
+    }
+
+    to {
+        background-position: 0 0;
+    }
+}

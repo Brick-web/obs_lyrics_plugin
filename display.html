@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>OBS 歌词显示端</title>
+    <link rel="stylesheet" href="style/main.css">
+    <link rel="stylesheet" href="style/modes/ktv.css">
+    <link rel="stylesheet" href="style/modes/basic.css">
+    <link rel="stylesheet" href="style/modes/svg_curve.css">
+    <link rel="stylesheet" href="style/modes/comic.css">
+    <link rel="stylesheet" href="style/modes/starry.css">
+    <link rel="stylesheet" href="style/modes/particles.css">
+    <link rel="stylesheet" href="style/modes/neon.css">
+    <link rel="stylesheet" href="style/modes/title_spotlight.css">
+</head>
+
+<body>
+    <!-- 预定义 SVG 渐变资源 -->
+    <!-- SVG 渐变将由 JS 动态注入 -->
+    <div id="svg-defs-container"></div>
+
+    <div id="status-gradient"></div>
+    <!-- <div id="status-bar">等待连接...</div> -->
+    <div id="song-title-screen" class="song-title-screen">
+        <div id="song-title-text" class="song-title-text">
+            <span class="song-title-spotlight-halo" aria-hidden="true"></span>
+            <span class="song-title-spotlight-beam" aria-hidden="true"></span>
+            <span id="song-title-label" class="song-title-label"></span>
+        </div>
+        <div id="song-content-text" class="song-content-text"></div>
+    </div>
+    <div id="lyrics-container">
+        <div id="current-line" class="lyric-line"></div>
+        <div id="translation-line" class="translation-line"></div>
+    </div>
+
+    <script type="module" src="./js/main.js"></script>
+</body>
+
+</html>

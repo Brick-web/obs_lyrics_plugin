@@ -1,0 +1,9 @@
+/* 模式2：直接显示 */
+.mode-direct {
+    opacity: 1;
+}
+
+/* 模式3：淡入 */
+.mode-fade {
+    animation: fadeIn 0.8s ease forwards;
+}

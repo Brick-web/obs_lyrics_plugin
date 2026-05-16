@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>LRC 集成测试</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .test-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .test-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .test-card h2 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .test-result {
+            margin: 15px 0;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .test-result.pass {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .test-result.fail {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #f5222d;
+        }
+
+        .test-result.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left: 4px solid #17a2b8;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .summary {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary h2 {
+            color: #333;
+            margin-top: 0;
+        }
+
+        .score {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+            text-align: center;
+        }
+
+        pre {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 768px) {
+            .test-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🧪 LRC 集成测试 - 完整工作流程验证</h1>
+
+        <div class="test-grid">
+            <!-- 测试 1: 加载原始 LRC 文件 -->
+            <div class="test-card">
+                <h2>📄 测试 1: 加载 LRC 文件</h2>
+                <p>测试从磁盘加载真实的 LRC 文件</p>
+                <textarea id="lrc-content" placeholder="LRC 文件内容（自动加载）"></textarea>
+                <button onclick="testLoadLrcFile()">加载 LRC 文件</button>
+                <div id="test1-results"></div>
+            </div>
+
+            <!-- 测试 2: 解析 
+              内容 -->
+            <div class="test-card">
+                <h2>🔧 测试 2: 解析转换</h2>
+                <p>测试 LRC 到 JSON 的转换过程</p>
+                <button onclick="testParseLrc()">解析 LRC 内容</button>
+                <div id="test2-results"></div>
+            </div>
+
+            <!-- 测试 3: 验证转换结果 -->
+            <div class="test-card">
+                <h2>✅ 测试 3: 验证输出格式</h2>
+                <p>检查转换后的 JSON 格式是否正确</p>
+                <button onclick="testJsonFormat()">验证 JSON 格式</button>
+                <div id="test3-results"></div>
+            </div>
+
+            <!-- 测试 4: 模拟播放 -->
+            <div class="test-card">
+                <h2>▶️ 测试 4: 模拟播放流程</h2>
+                <p>测试歌词在播放中的自动切换逻辑</p>
+                <button onclick="testPlaybackSimulation()">模拟播放</button>
+                <div id="test4-results"></div>
+            </div>
+        </div>
+
+        <!-- 总结 -->
+        <div class="summary">
+            <h2>📊 测试总结</h2>
+            <div class="score" id="summary-score">0%</div>
+            <p id="summary-message"></p>
+            <pre id="summary-details"></pre>
+        </div>
+    </div>
+
+    <script type="module">
+        import { parseLrc, parseLrcFile, isLrcFile } from './js/lrcParser.js';
+
+        let testScores = { passed: 0, total: 0 };
+        let parsedLrcData = null;
+
+        window.testLoadLrcFile = async function () {
+            const resultsDiv = document.getElementById('test1-results');
+            resultsDiv.innerHTML = '<div class="test-result info">⏳ 加载中...</div>';
+
+            try {
+                const response = await fetch('./lyrics/counting start.lrc');
+                if (!response.ok) {
+                    resultsDiv.innerHTML = '<div class="test-result fail">❌ 无法加载文件</div>';
+                    testScores.total++;
+                    return;
+                }
+
+                const lrcContent = await response.text();
+                document.getElementById('lrc-content').value = lrcContent.substring(0, 500) + '\n...（更多内容）';
+
+                resultsDiv.innerHTML = `
+                    <div class="test-result pass">✅ 成功加载</div>
+                    <div class="test-result info">文件大小: ${(lrcContent.length / 1024).toFixed(2)} KB</div>
+                    <div class="test-result info">行数: ${lrcContent.split('\n').length}</div>
+                `;
+                testScores.passed++;
+                testScores.total++;
+            } catch (e) {
+                resultsDiv.innerHTML = `<div class="test-result fail">❌ 错误: ${e.message}</div>`;
+                testScores.total++;
+            }
+            updateSummary();
+        };
+
+        window.testParseLrc = async function () {
+            const resultsDiv = document.getElementById('test2-results');
+            resultsDiv.innerHTML = '<div class="test-result info">⏳ 解析中...</div>';
+
+            try {
+                const response = await fetch('./lyrics/counting start.lrc');
+                const lrcContent = await response.text();
+
+                parsedLrcData = await parseLrcFile(lrcContent);
+
+                let html = '<div class="test-result pass">✅ 解析成功</div>';
+                html += `<div class="test-result info">标题: ${parsedLrcData.title}</div>`;
+                html += `<div class="test-result info">艺术家: ${parsedLrcData.artist || '(未指定)'}</div>`;
+                html += `<div class="test-result info">总歌词数: ${parsedLrcData.lyrics.length}</div>`;
+
+                if (parsedLrcData.lyrics.length > 0) {
+                    html += '<div style="margin-top: 10px;"><strong>前 3 句歌词:</strong><pre>';
+                    parsedLrcData.lyrics.slice(0, 3).forEach((lyric, i) => {
+                        html += `[${i}] "${lyric.text}" (${lyric.duration}ms)\n`;
+                    });
+                    html += '</pre></div>';
+                }
+
+                resultsDiv.innerHTML = html;
+                testScores.passed++;
+                testScores.total++;
+            } catch (e) {
+                resultsDiv.innerHTML = `<div class="test-result fail">❌ 错误: ${e.message}</div>`;
+                testScores.total++;
+            }
+            updateSummary();
+        };
+
+        window.testJsonFormat = function () {
+            const resultsDiv = document.getElementById('test3-results');
+
+            if (!parsedLrcData) {
+                resultsDiv.innerHTML = '<div class="test-result fail">❌ 请先执行测试2</div>';
+                testScores.total++;
+                updateSummary();
+                return;
+            }
+
+            let passed = true;
+            let errors = [];
+
+            // 验证格式
+            if (!parsedLrcData.title || typeof parsedLrcData.title !== 'string') {
+                passed = false;
+                errors.push('标题字段缺失或格式错误');
+            }
+
+            if (!Array.isArray(parsedLrcData.lyrics)) {
+                passed = false;
+                errors.push('lyrics 应为数组');
+            } else {
+                parsedLrcData.lyrics.forEach((lyric, i) => {
+                    if (!lyric.text || typeof lyric.text !== 'string') {
+                        errors.push(`第 ${i} 项: text 字段缺失或格式错误`);
+                        passed = false;
+                    }
+                    if (typeof lyric.duration !== 'number' || lyric.duration <= 0) {
+                        errors.push(`第 ${i} 项: duration 应为正数 (当前: ${lyric.duration})`);
+                        passed = false;
+                    }
+                });
+            }
+
+            let html = passed ?
+                '<div class="test-result pass">✅ 格式验证通过</div>' :
+                '<div class="test-result fail">❌ 格式验证失败</div>';
+
+            if (errors.length > 0) {
+                html += '<div style="margin-top: 10px;"><strong>问题列表:</strong><pre>';
+                errors.forEach(e => html += e + '\n');
+                html += '</pre></div>';
+            }
+
+            html += '<div style="margin-top: 10px;"><strong>JSON 结构示例:</strong><pre>';
+            html += JSON.stringify({
+                title: parsedLrcData.title,
+                artist: parsedLrcData.artist || '(可选)',
+                lyrics: [
+                    { text: parsedLrcData.lyrics[0].text, duration: parsedLrcData.lyrics[0].duration },
+                    '...',
+                    { text: parsedLrcData.lyrics[parsedLrcData.lyrics.length - 1].text, duration: parsedLrcData.lyrics[parsedLrcData.lyrics.length - 1].duration }
+                ]
+            }, null, 2) + '</pre></div>';
+
+            resultsDiv.innerHTML = html;
+            if (passed) testScores.passed++;
+            testScores.total++;
+            updateSummary();
+        };
+
+        window.testPlaybackSimulation = function () {
+            const resultsDiv = document.getElementById('test4-results');
+
+            if (!parsedLrcData || parsedLrcData.lyrics.length === 0) {
+                resultsDiv.innerHTML = '<div class="test-result fail">❌ 请先执行测试2</div>';
+                testScores.total++;
+                updateSummary();
+                return;
+            }
+
+            // 模拟播放：计算累计时长
+            let totalDuration = 0;
+            const timeline = [];
+
+            parsedLrcData.lyrics.forEach((lyric, i) => {
+                timeline.push({
+                    index: i,
+                    text: lyric.text,
+                    duration: lyric.duration,
+                    startTime: totalDuration,
+                    endTime: totalDuration + lyric.duration
+                });
+                totalDuration += lyric.duration;
+            });
+
+            // 检验时长连贯性
+            let passed = true;
+            const maxDuration = 300000; // 5分钟阈值
+
+            if (totalDuration > maxDuration) {
+                passed = false;
+            }
+
+            let html = passed ?
+                '<div class="test-result pass">✅ 播放时长合理</div>' :
+                '<div class="test-result fail">⚠️ 总时长异常</div>';
+
+            html += `<div class="test-result info">总时长: ${(totalDuration / 1000).toFixed(1)} 秒 (${(totalDuration / 60000).toFixed(1)} 分钟)</div>`;
+            html += `<div class="test-result info">歌词数: ${timeline.length}</div>`;
+            html += `<div class="test-result info">平均时长: ${(totalDuration / timeline.length).toFixed(0)} ms/句</div>`;
+
+            html += '<div style="margin-top: 10px;"><strong>播放时间线 (前5句):</strong><pre>';
+            timeline.slice(0, 5).forEach(item => {
+                const startSec = (item.startTime / 1000).toFixed(2);
+                const endSec = (item.endTime / 1000).toFixed(2);
+                html += `[${startSec}s ~ ${endSec}s] "${item.text}"\n`;
+            });
+            html += '</pre></div>';
+
+            resultsDiv.innerHTML = html;
+            if (passed) testScores.passed++;
+            testScores.total++;
+            updateSummary();
+        };
+
+        function updateSummary() {
+            const percent = testScores.total > 0 ?
+                Math.round((testScores.passed / testScores.total) * 100) : 0;
+
+            document.getElementById('summary-score').textContent = percent + '%';
+
+            let message = '';
+            if (percent === 100) {
+                message = '🎉 所有测试通过！LRC 支持已完全集成。';
+            } else if (percent >= 75) {
+                message = '✅ 大部分测试通过，系统基本可用。';
+            } else if (percent >= 50) {
+                message = '⚠️ 部分功能有问题，需要调查。';
+            } else {
+                message = '❌ 测试失败，请检查配置。';
+            }
+
+            document.getElementById('summary-message').textContent = message;
+            document.getElementById('summary-details').textContent =
+                `已完成测试: ${testScores.total}\n` +
+                `通过测试: ${testScores.passed}\n` +
+                `失败测试: ${testScores.total - testScores.passed}`;
+        }
+
+        // 页面加载时自动运行第一个测试
+        window.addEventListener('load', () => {
+            console.log('LRC 集成测试页面已加载');
+        });
+    </script>
+</body>
+
+</html>

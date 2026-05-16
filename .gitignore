@@ -1,0 +1,17 @@
+# 便携 Python（启动器下载，体积大）
+runtime/
+
+# 歌词与字体（可能含版权，仅本地使用）
+lyrics/*
+!lyrics/.gitkeep
+font/*
+!font/.gitkeep
+*.ttf
+*.TTF
+*.otf
+*.woff
+*.woff2
+
+# 用户本地配置（引用本地歌词/预设）
+config/playlist.json
+config/presets.json

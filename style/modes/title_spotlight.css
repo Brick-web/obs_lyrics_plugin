@@ -1,0 +1,220 @@
+/* 歌名追光：电影感背光扫射 — 体积光 + 慢节奏 + 字形镜面高光（避免条纹遮罩与过重 filter） */
+
+.song-title-text.title-mode-spotlight {
+    display: inline-block;
+    position: relative;
+    isolation: isolate;
+}
+
+.song-title-text.title-mode-spotlight .song-title-spotlight-halo,
+.song-title-text.title-mode-spotlight .song-title-spotlight-beam {
+    display: block;
+}
+
+/* 环境体积：随主光轻微呼吸，不抢戏 */
+.song-title-text.title-mode-spotlight .song-title-spotlight-halo {
+    position: absolute;
+    inset: -0.35em -0.55em;
+    z-index: 0;
+    border-radius: 0.35em;
+    background: radial-gradient(
+        ellipse 100% 95% at 50% 55%,
+        color-mix(in srgb, var(--title-spot-glow, rgba(126, 203, 255, 0.55)) 55%, transparent) 0%,
+        transparent 72%
+    );
+    opacity: 0.22;
+    filter: blur(28px);
+    transform-origin: 50% 50%;
+    animation: obs-title-halo-breathe 6.2s ease-in-out infinite;
+    pointer-events: none;
+}
+
+/* 主背光：椭圆光斑从字后横向掠过，模拟「灯从背后打过来」 */
+.song-title-text.title-mode-spotlight .song-title-spotlight-beam {
+    position: absolute;
+    left: -55%;
+    right: -55%;
+    top: -55%;
+    bottom: -55%;
+    z-index: 1;
+    transform-origin: 50% 50%;
+    transform: translate3d(-58%, 6%, 0) skewX(-11deg) scale(0.82);
+    opacity: 0;
+    will-change: transform, opacity;
+
+    background:
+        /* 极淡空气尘感，增加体积而不是「切条」 */
+        repeating-linear-gradient(
+            92deg,
+            transparent 0 14px,
+            rgba(255, 255, 255, 0.04) 14px 15px,
+            transparent 15px 38px
+        ),
+        radial-gradient(
+            ellipse 42% 125% at 50% 50%,
+            rgba(255, 255, 255, 0.55) 0%,
+            color-mix(in srgb, var(--title-spot-glow, rgba(126, 203, 255, 0.75)) 70%, transparent) 22%,
+            color-mix(in srgb, var(--title-spot-glow, rgba(126, 203, 255, 0.35)) 45%, transparent) 48%,
+            transparent 68%
+        );
+    background-blend-mode: screen, normal;
+
+    filter: blur(22px) saturate(1.15) brightness(1.08);
+    animation: obs-title-backlight-sweep 6.2s cubic-bezier(0.45, 0.02, 0.25, 1) infinite;
+    pointer-events: none;
+}
+
+.song-title-text.title-mode-spotlight .song-title-label {
+    position: relative;
+    z-index: 2;
+    display: inline-block;
+    /* 不叠加 filter，保留 main.css 描边阴影，避免 OBS 里发糊发脏 */
+}
+
+/* 字形表面：极窄镜面高光带，略晚于背光通过，像光擦过笔画边缘 */
+.song-title-text.title-mode-spotlight .song-title-label::after {
+    content: '';
+    position: absolute;
+    inset: -0.08em -0.2em;
+    z-index: 3;
+    border-radius: 0.06em;
+    pointer-events: none;
+    background: linear-gradient(
+        102deg,
+        transparent 0%,
+        transparent 44%,
+        rgba(255, 255, 255, 0.06) 48.5%,
+        rgba(255, 255, 255, 0.42) 49.65%,
+        rgba(255, 255, 255, 0.08) 50.35%,
+        transparent 53%,
+        transparent 100%
+    );
+    background-size: 220% 100%;
+    background-position: 125% 50%;
+    mix-blend-mode: soft-light;
+    opacity: 0;
+    animation: obs-title-spec-sheen 6.2s cubic-bezier(0.45, 0.02, 0.25, 1) infinite;
+    animation-delay: 0.12s;
+}
+
+@keyframes obs-title-halo-breathe {
+    0%,
+    100% {
+        opacity: 0.16;
+        transform: scale(0.96);
+    }
+
+    38%,
+    52% {
+        opacity: 0.38;
+        transform: scale(1.04);
+    }
+}
+
+@keyframes obs-title-backlight-sweep {
+    0%,
+    14% {
+        opacity: 0;
+        transform: translate3d(-58%, 6%, 0) skewX(-11deg) scale(0.82);
+    }
+
+    22% {
+        opacity: 0.55;
+    }
+
+    46% {
+        opacity: 0.88;
+        transform: translate3d(0, -2%, 0) skewX(-9deg) scale(1.05);
+    }
+
+    54% {
+        opacity: 0.72;
+        transform: translate3d(8%, 0, 0) skewX(-8deg) scale(1.02);
+    }
+
+    68%,
+    100% {
+        opacity: 0;
+        transform: translate3d(58%, 5%, 0) skewX(-11deg) scale(0.88);
+    }
+}
+
+@keyframes obs-title-spec-sheen {
+    0%,
+    18% {
+        opacity: 0;
+        background-position: 130% 50%;
+    }
+
+    26% {
+        opacity: 0.35;
+    }
+
+    48% {
+        opacity: 0.55;
+        background-position: 50% 50%;
+    }
+
+    58% {
+        opacity: 0.22;
+        background-position: 35% 50%;
+    }
+
+    66%,
+    100% {
+        opacity: 0;
+        background-position: -35% 50%;
+    }
+}
+
+/* 无 color-mix 时仍可用（旧 Chromium） */
+@supports not (color: color-mix(in srgb, red, blue)) {
+
+    .song-title-text.title-mode-spotlight .song-title-spotlight-halo {
+        background: radial-gradient(
+            ellipse 100% 95% at 50% 55%,
+            var(--title-spot-glow, rgba(126, 203, 255, 0.35)) 0%,
+            transparent 72%
+        );
+    }
+
+    .song-title-text.title-mode-spotlight .song-title-spotlight-beam {
+        background:
+            repeating-linear-gradient(
+                92deg,
+                transparent 0 14px,
+                rgba(255, 255, 255, 0.04) 14px 15px,
+                transparent 15px 38px
+            ),
+            radial-gradient(
+                ellipse 42% 125% at 50% 50%,
+                rgba(255, 255, 255, 0.55) 0%,
+                var(--title-spot-glow, rgba(126, 203, 255, 0.65)) 22%,
+                rgba(126, 203, 255, 0.18) 48%,
+                transparent 68%
+            );
+    }
+}
+
+/* OBS 等对 filter 支持差时：保留平移与亮度，去掉模糊 */
+@supports not (filter: blur(1px)) {
+
+    .song-title-text.title-mode-spotlight .song-title-spotlight-halo,
+    .song-title-text.title-mode-spotlight .song-title-spotlight-beam {
+        filter: none;
+    }
+
+    .song-title-text.title-mode-spotlight .song-title-spotlight-halo {
+        opacity: 0.28;
+    }
+
+    .song-title-text.title-mode-spotlight .song-title-spotlight-beam {
+        opacity: 0.65;
+        background: radial-gradient(
+            ellipse 38% 120% at 50% 50%,
+            rgba(255, 255, 255, 0.35) 0%,
+            var(--title-spot-glow, rgba(126, 203, 255, 0.55)) 28%,
+            transparent 62%
+        );
+    }
+}

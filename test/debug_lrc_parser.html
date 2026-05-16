@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>LRC 解析器调试</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: #fafafa;
+        }
+
+        pre {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        button {
+            background: #0066cc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #0052a3;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🔧 LRC 解析器调试工具</h1>
+
+        <div class="section">
+            <h2>1. 加载并显示原始 LRC 文件</h2>
+            <button onclick="loadAndShowRaw()">加载 LRC 文件</button>
+            <pre id="raw-output"></pre>
+        </div>
+
+        <div class="section">
+            <h2>2. 逐行解析调试</h2>
+            <button onclick="debugParseLine()">调试行解析</button>
+            <pre id="debug-output"></pre>
+        </div>
+
+        <div class="section">
+            <h2>3. 完整解析结果</h2>
+            <button onclick="fullParse()">完整解析</button>
+            <pre id="parse-output"></pre>
+        </div>
+    </div>
+
+    <script type="module">
+        import { parseLrc, parseLrcFile } from './js/lrcParser.js';
+
+        window.loadAndShowRaw = async function () {
+            const output = document.getElementById('raw-output');
+            try {
+                const response = await fetch('./lyrics/counting start.lrc');
+                const content = await response.text();
+                output.textContent = `文件大小: ${content.length} 字节\n行数: ${content.split('\n').length}\n\n内容预览:\n${content.substring(0, 500)}...`;
+            } catch (e) {
+                output.textContent = `错误: ${e.message}`;
+            }
+        };
+
+        window.debugParseLine = async function () {
+            const output = document.getElementById('debug-output');
+            try {
+                const response = await fetch('./lyrics/counting start.lrc');
+                const content = await response.text();
+                const lines = content.split('\n');
+
+                let debug = `总行数: ${lines.length}\n\n`;
+                debug += '前10行逐行分析:\n';
+                debug += '─'.repeat(60) + '\n';
+
+                const timeRegex = /^\[(\d{2}):(\d{2})(?:\.(\d{3}))?\]\s*(.*)$/;
+                const metaRegex = /^\[([a-z]+):(.+)\]/;
+
+                for (let i = 0; i < Math.min(10, lines.length); i++) {
+                    const line = lines[i];
+                    debug += `[行${i + 1}] "${line}"\n`;
+
+                    if (timeRegex.test(line)) {
+                        const match = line.match(timeRegex);
+                        debug += `  ✓ 时间戳行: ${match[1]}:${match[2]}.${match[3] || '000'} | 文本: "${match[4]}"\n`;
+                    } else if (metaRegex.test(line)) {
+                        const match = line.match(metaRegex);
+                        debug += `  ✓ 元数据行: [${match[1]}:${match[2]}]\n`;
+                    } else {
+                        debug += `  - 其他行\n`;
+                    }
+                }
+
+                output.textContent = debug;
+            } catch (e) {
+                output.textContent = `错误: ${e.message}`;
+            }
+        };
+
+        window.fullParse = async function () {
+            const output = document.getElementById('parse-output');
+            try {
+                const response = await fetch('./lyrics/counting start.lrc');
+                const content = await response.text();
+
+                const result = await parseLrcFile(content);
+
+                let result_text = `解析结果:\n`;
+                result_text += `标题: "${result.title}"\n`;
+                result_text += `艺术家: "${result.artist || '(无)'}"\n`;
+                result_text += `歌词行数: ${result.lyrics.length}\n`;
+                result_text += `\n前5句:\n`;
+                result_text += '─'.repeat(60) + '\n';
+
+                result.lyrics.slice(0, 5).forEach((lyric, i) => {
+                    result_text += `[${i}] "${lyric.text}" (${lyric.duration}ms)\n`;
+                });
+
+                if (result.lyrics.length > 5) {
+                    result_text += `\n... (还有 ${result.lyrics.length - 5} 句) ...\n`;
+                    result_text += '─'.repeat(60) + '\n';
+                    result_text += '最后2句:\n';
+                    result.lyrics.slice(-2).forEach((lyric, i) => {
+                        const idx = result.lyrics.length - 2 + i;
+                        result_text += `[${idx}] "${lyric.text}" (${lyric.duration}ms)\n`;
+                    });
+                }
+
+                output.textContent = result_text;
+            } catch (e) {
+                output.textContent = `错误: ${e.message}\n\n${e.stack}`;
+            }
+        };
+    </script>
+</body>
+
+</html>
