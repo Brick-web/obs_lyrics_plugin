@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /* 模式1：KTV 扫光动画 - 伪元素重构版 */
 .mode-ktv {
     opacity: 1;
@@ -38,44 +37,4 @@
     to {
         background-position: 0 0;
     }
-=======
-/* 模式1：KTV 扫光动画 - 伪元素重构版 */
-.mode-ktv {
-    opacity: 1;
-    /* 主元素只负责显示白字黑边（底层） */
-    color: var(--ktv-base-color);
-}
-
-/* 使用伪元素叠加渐变层，解决 text-shadow 与 background-clip 的冲突 */
-.mode-ktv::after {
-    content: attr(data-text);
-    position: absolute;
-    left: 0;
-    top: 0;
-    z-index: 1;
-
-    /* 渐变逻辑 */
-    background: linear-gradient(to right, var(--ktv-scan-color) 50%, var(--ktv-base-color) 50%);
-    background-size: 200% 100%;
-    background-position: 100% 0;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-
-    /* 继承主元素的动画时长 */
-    animation: ktvScan linear forwards;
-    animation-duration: inherit;
-
-    /* 关键：伪元素不要阴影，否则会重叠 */
-    text-shadow: none;
-}
-
-@keyframes ktvScan {
-    from {
-        background-position: 100% 0;
-    }
-
-    to {
-        background-position: 0 0;
-    }
->>>>>>> ce06bf7e3ef514af1e39fdb9769e4f30278f895d
 }

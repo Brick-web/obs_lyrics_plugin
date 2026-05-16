@@ -7,19 +7,19 @@
 
 ## 效果预览
 
-> ![控制端截图](docs/images/a.jpg)
+> 这里可以放项目截图。上传到 GitHub 后，你可以把图片放到 `docs/images/` 目录，再替换下面的路径。
 
 ### 控制端
 
-![控制端截图](docs/images/control.jpg)
+![控制端截图](docs/images/control-preview.png)
 
 ### OBS 显示端
 
-![显示端截图](docs/images/display.jpg)
+![显示端截图](docs/images/display-preview.png)
 
 ### 本地启动器
 
-![启动器截图](docs/images/launcher-preview.jpg)
+![启动器截图](docs/images/launcher-preview.png)
 
 ## 项目亮点
 
@@ -27,9 +27,9 @@
 - **控制端/显示端分离**：控制页面负责选歌、切句、配置；显示页面只负责干净展示。
 - **多种歌词特效**：包含 KTV 扫光、直接显示、淡入淡出、晚会曲线、漫画、星空、粒子、霓虹故障等模式。
 - **快捷键操作**：支持方向键切句、清空、恢复推送和自动播放切换，适合直播时快速操作。
-- **容错隐藏推送调整**：按下向下键后可在控制端调整歌词进度，不立即推送到 OBS 显示端。
+- **隐藏推送调整**：按下向下键后可在控制端调整歌词进度，不立即推送到 OBS 显示端。
 - **配置预设**：可保存、导入、导出歌曲相关配置。
-- **本地 GUI 启动器**：无需依赖第三方服务，可通过启动器开启本地 HTTP 服务。
+- **本地 GUI 启动器**：无需依赖 VS Code Live Server，可通过启动器开启本地 HTTP 服务。
 
 ## 功能列表
 
@@ -55,8 +55,6 @@
 启动本地服务.bat
 ```
 
-![启动服务](docs/images/begin.jpg)
-
 默认会打开 GUI 启动器。启动器会自动检测 Python 环境，也可以下载便携版 Python 到插件目录中。
 
 如果 GUI 启动失败，会自动回退到命令行启动方式：
@@ -81,19 +79,7 @@ http://127.0.0.1:8765/control.html
 http://127.0.0.1:8765/display.html
 ```
 
-![配置服务](docs/images/11.jpg)
-
-![配置服务](docs/images/12.jpg)
-
 如果你在启动器里修改了端口，请同步修改 URL 中的端口号。
-
-在 OBS 源中添加显示端：
-
-![配置服务](docs/images/13.jpg)
-
-![配置服务](docs/images/14.jpg)
-
-![配置服务](docs/images/15.jpg)
 
 ## 快捷键
 
@@ -144,8 +130,6 @@ JSON 歌词文件支持以下歌曲信息字段：
 config/playlist.json
 ```
 
-可参考仓库中的 `config/playlist.example.json` 示例格式。
-
 ## 目录结构
 
 ```text
@@ -156,20 +140,15 @@ config/playlist.json
 ├── 启动本地服务.bat              # 默认启动入口
 ├── 启动本地服务-命令行.bat        # 命令行启动入口
 ├── config/                      # 播放列表、字体等配置
-├── font/                        # 字体资源（本地放置，勿提交仓库）
+├── font/                        # 字体资源
 ├── js/                          # JS 逻辑
-├── lyrics/                      # 歌词文件（本地放置，勿提交仓库）
+├── lyrics/                      # 歌词文件
 ├── style/                       # 样式与动画模式
-├── docs/images/                 # README 截图等资源
 ├── LICENSE.md                   # 英文许可证声明
 └── LICENSE.zh-CN.md             # 中文许可证说明
 ```
 
 ## 常见问题
-
-### 为什么显示端底部显示红色？
-
-当显示端与控制端正确通信时，显示端底部会显示绿色渐变并在加载歌曲后消失；显示红色表明未与控制端正确通信。
 
 ### 为什么不能直接双击 `control.html` 使用？
 
@@ -180,9 +159,9 @@ config/playlist.json
 http://127.0.0.1:8765/control.html
 ```
 
-### 适配 VS Code Live Server 吗？
+### 一定要安装 VS Code Live Server 吗？
 
-适配。但是不必须，项目提供了本地启动器：
+不需要。项目提供了本地启动器：
 
 ```text
 启动本地服务.bat
