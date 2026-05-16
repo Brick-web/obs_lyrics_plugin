@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #particles-canvas {
     position: fixed;
     inset: 0;
@@ -15,4 +16,23 @@
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.8),
         0 0 20px rgba(255, 255, 255, 0.6),
         0 0 30px rgba(255, 255, 255, 0.4);
+=======
+#particles-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 5;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    mix-blend-mode: screen;
+}
+
+.lyric-line.mode-particles {
+    color: white !important;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8),
+        0 0 20px rgba(255, 255, 255, 0.6),
+        0 0 30px rgba(255, 255, 255, 0.4);
+>>>>>>> ce06bf7e3ef514af1e39fdb9769e4f30278f895d
 }

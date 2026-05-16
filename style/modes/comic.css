@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* 模式5：漫画特效 */
 .mode-comic {
     opacity: 1;
@@ -45,4 +46,53 @@
         opacity: 1;
         transform: scale(1) skewX(-10deg) rotate(-2deg);
     }
+=======
+/* 模式5：漫画特效 */
+.mode-comic {
+    opacity: 1;
+    font-weight: 900;
+    font-style: italic;
+    color: var(--comic-text-color);
+
+    /* 漫画风格：粗描边 + 硬阴影 */
+    text-shadow:
+        3px 3px 0 #000,
+        -1px -1px 0 #000,
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+        1px 1px 0 #000,
+        8px 8px 0 var(--comic-shadow-color);
+
+    transform-origin: center bottom;
+    animation: comicPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* 漫画半调网点叠加 */
+.mode-comic::before {
+    content: attr(data-text);
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 2;
+    color: transparent;
+    /* 半调网点图案 */
+    background-image: radial-gradient(circle, #000 20%, transparent 20%);
+    background-size: 4px 4px;
+    -webkit-background-clip: text;
+    background-clip: text;
+    opacity: 0.2;
+    pointer-events: none;
+}
+
+@keyframes comicPop {
+    0% {
+        opacity: 0;
+        transform: scale(0.5) skewX(-10deg) rotate(-5deg);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1) skewX(-10deg) rotate(-2deg);
+    }
+>>>>>>> ce06bf7e3ef514af1e39fdb9769e4f30278f895d
 }

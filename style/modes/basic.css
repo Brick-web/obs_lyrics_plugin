@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* 模式2：直接显示 */
 .mode-direct {
     opacity: 1;
@@ -6,4 +7,14 @@
 /* 模式3：淡入 */
 .mode-fade {
     animation: fadeIn 0.8s ease forwards;
+=======
+/* 模式2：直接显示 */
+.mode-direct {
+    opacity: 1;
+}
+
+/* 模式3：淡入 */
+.mode-fade {
+    animation: fadeIn 0.8s ease forwards;
+>>>>>>> ce06bf7e3ef514af1e39fdb9769e4f30278f895d
 }
